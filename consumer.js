@@ -29,6 +29,7 @@ const consume = async () => {
 	await consumer.run({
 		// this function is called every time the consumer gets a new message
 		eachMessage: ({ message }) => {
+			console.log(message.offset)
 			// here, we just log the message to the standard output
 			console.log(`received message: ${message.value}`)
 		},
