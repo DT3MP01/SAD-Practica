@@ -21,8 +21,7 @@ app.use(express.urlencoded({extended:false}));
 app.use(express.json());
  
 //Nuestro primer WS Get
-app.get('/', (req, res) => {  
-	  
+app.get('/', (req, res) => {    
     res.json(
         {
             "Title": "Hola mundo"
@@ -30,19 +29,22 @@ app.get('/', (req, res) => {
     );
 })
 
-app.post('/', function (req, res) {
-	sendMessage("hola")
-    res.send('[POST]Saludos desde express'+req.body);
-    
+app.post('/', function(request, response){
+	var json= request.body;      // your JSON
+	sendMessage(json.url);
+	response.send("OK  " +json.url);    // echo the result back
   });
+  
 
 //Iniciando el servidor
 app.listen(app.get('port'),()=>{
     console.log(`Server listening on port ${app.get('port')}`);
 });
 
+
 var sendMessage = async (url) => {
 	await producer.connect()
+	let i = 0
 		try {
 			// send a message to the configured topic with
 			// the key and value formed from the current value of `i`
@@ -50,10 +52,15 @@ var sendMessage = async (url) => {
 				topic,
 				messages: [
 					{
+						key: String(i),
 						value: url,
 					},
 				],
 			})
+
+			// if the message is written successfully, log it and increment `i`
+			console.log("writes: ", i)
+			i++
 		} catch (err) {
 			console.error("could not write message " + err)
 		}
