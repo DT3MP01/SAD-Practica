@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const morgan=require('morgan');
 const { Kafka } = require('kafkajs')
+const { randomUUID } = require('crypto');
+
 
 const kafka = new Kafka({
   clientId: 'my-app',
@@ -29,6 +31,15 @@ app.get('/', (req, res) => {
     );
 })
 
+app.get('/result/', (req, res) => {    
+    res.json(
+        {
+            "Title": "Hola mundo"
+        }
+    );
+})
+
+
 app.post('/', function(request, response){
 	var json= request.body;      // your JSON
 	sendMessage(json.url);
@@ -43,6 +54,9 @@ app.listen(app.get('port'),()=>{
 
 
 var sendMessage = async (url) => {
+
+	id = randomUUID()
+	console.log(id)
 	await producer.connect()
 		try {
 			// send a message to the configured topic with
@@ -51,6 +65,7 @@ var sendMessage = async (url) => {
 				topic,
 				messages: [
 					{
+						key: id,
 						value: url,
 					},
 				],

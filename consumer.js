@@ -30,6 +30,7 @@ const consume = async () => {
 		// this function is called every time the consumer gets a new message
 		eachMessage: ({ message }) => {
 			console.log(message.offset)
+			console.log(message.key.toString)
 			// here, we just log the message to the standard output
 			console.log(`received message: ${message.value}`)
 		},
