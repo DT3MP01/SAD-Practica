@@ -4,15 +4,33 @@ const morgan=require('morgan');
 const { Kafka } = require('kafkajs')
 const { randomUUID } = require('crypto');
 
-
 const kafka = new Kafka({
   clientId: 'my-app',
   brokers: ['localhost:9093']
 })
-const topic = "topic-name"
+const restopic="result-topic"
+const pettopic = "petition-topic"
 const producer = kafka.producer() 
 
+const consumer = kafka.consumer({
+	groupId: "app-rest",
+	minBytes: 5,
+	maxBytes: 1e6,
+	// wait for at most 3 seconds before receiving new data
+	maxWaitTimeInMs: 3000,
+})
 
+const consume = async () => {
+	// first, we wait for the client to connect and subscribe to the given topic
+	await consumer.connect()
+	await consumer.subscribe({ topic:restopic, fromBeginning: true })
+	await consumer.run({
+		// this function is called every time the consumer gets a new message
+		eachMessage: ({ message }) => {
+			console.log(`Result message: ${message.value}`)
+		},
+	})
+}
 //Configuraciones
 app.set('port', process.env.PORT || 3000);
 app.set('json spaces', 2)
@@ -50,11 +68,11 @@ app.post('/', function(request, response){
 //Iniciando el servidor
 app.listen(app.get('port'),()=>{
     console.log(`Server listening on port ${app.get('port')}`);
+	consume();
 });
 
 
 var sendMessage = async (url) => {
-
 	id = randomUUID()
 	console.log(id)
 	await producer.connect()
@@ -62,7 +80,7 @@ var sendMessage = async (url) => {
 			// send a message to the configured topic with
 			// the key and value formed from the current value of `i`
 			await producer.send({
-				topic,
+				topic:pettopic,
 				messages: [
 					{
 						key: id,
