@@ -11,8 +11,3 @@ RUN npm install
 COPY app.py /usr/src/app/
 COPY templates/index.html /usr/src/app/templates/
 
-# tell the port number the container should expose
-EXPOSE 5000
-
-# run the application
-CMD ["python3", "/usr/src/app/app.py"]
