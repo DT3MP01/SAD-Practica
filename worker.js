@@ -1,4 +1,5 @@
 const { Kafka } = require("kafkajs")
+import shellExec from 'shell-exec'
 
 const kafka = new Kafka({
 	clientId:"consumer-1",
@@ -51,6 +52,7 @@ const consume = async () => {
 			console.log(message.key.toString)
 			// here, we just log the message to the standard output
 			sendMessage(message.key,message.value)
+			//shellExec('git clone '+message.value).then(console.log).catch(console.log)
 			console.log(`received message: ${message.value}`)
 		},
 	})
