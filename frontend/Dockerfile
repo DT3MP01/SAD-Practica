@@ -6,7 +6,8 @@ RUN apk add --update npm
 RUN npm install kafkajs
 RUN npm install express
 RUN npm install crypto
-RUN nom install morgan
+RUN npm install morgan
+RUN npm install
 
 
 # copy files required for the app to run
