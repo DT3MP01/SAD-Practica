@@ -4,7 +4,9 @@ FROM alpine
 # Install python and pip
 RUN apk add --update npm
 RUN npm install kafkajs
-RUN npm install 
+RUN npm install express
+RUN npm install crypto
+RUN nom install morgan
 
 
 # copy files required for the app to run

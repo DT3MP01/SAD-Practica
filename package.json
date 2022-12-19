@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "kafkajs": "^2.2.2"
+  }
+}
