@@ -1,5 +1,5 @@
 const { Kafka } = require("kafkajs")
-import shellExec from 'shell-exec'
+//import shellExec from 'shell-exec'
 
 const kafka = new Kafka({
 	clientId:"consumer-1",
@@ -57,5 +57,5 @@ const consume = async () => {
 		},
 	})
 }
-
+console.log("lanzando worker...")
 consume()

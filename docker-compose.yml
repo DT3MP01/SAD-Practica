@@ -22,3 +22,5 @@ services:
       - KAFKAJS_NO_PARTITIONER_WARNING=1
     depends_on:
       - zookeeper
+  worker:
+    build: ./worker
