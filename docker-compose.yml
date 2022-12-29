@@ -1,13 +1,21 @@
 version: "3"
+networks:
+  app-tier:
+    driver: bridge
+
 services:
   zookeeper:
     image: 'bitnami/zookeeper:latest'
+    networks:
+      - app-tier
     ports:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
   kafka:
     image: 'bitnami/kafka:latest'
+    networks:
+      - app-tier
     ports:
       - '9093:9093'
       - '9092:9092'
@@ -24,3 +32,5 @@ services:
       - zookeeper
   worker:
     build: ./worker
+    networks:
+      - app-tier
