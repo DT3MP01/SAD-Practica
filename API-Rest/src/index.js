@@ -60,7 +60,7 @@ app.get('/result/', (req, res) => {
 
 app.post('/', function(request, response){
 	var json= request.body;      // your JSON
-	sendMessage(json.url);
+	sendMessage(JSON.stringify(json));
 	response.send("OK  " +json.url);    // echo the result back
   });
   

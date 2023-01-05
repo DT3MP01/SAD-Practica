@@ -7,9 +7,14 @@ FROM alpine
 
 
 # Install python and pip
-RUN apk add --update npm
+RUN apk update
+RUN apk add npm
+RUN apk add --no-cache curl
+RUN apk add --no-cache git
 RUN npm install kafkajs
-RUN npm install 
+RUN npm install shell-exec
+RUN npm install
+
 
 
 # run the application
