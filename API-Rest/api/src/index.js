@@ -1,4 +1,5 @@
 const express = require('express');
+//const keycloak = require('./config/keycloak-config.js').initKeycloak()
 const app = express();
 const morgan=require('morgan');
 const { Kafka } = require('kafkajs')
@@ -6,7 +7,7 @@ const { randomUUID } = require('crypto');
 
 const kafka = new Kafka({
   clientId: 'my-app',
-  brokers: ['kafka:9092']
+  brokers: [process.env.KAFKAIPADDR]
 })
 const restopic="result-topic"
 const pettopic = "petition-topic"
@@ -36,6 +37,7 @@ app.set('port', process.env.PORT || 3000);
 app.set('json spaces', 2)
  
 //Middleware
+//app.use(keycloak.middleware())
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
@@ -64,7 +66,6 @@ app.post('/', function(request, response){
 	response.send("OK  " +json.url);    // echo the result back
   });
   
-
 //Iniciando el servidor
 app.listen(app.get('port'),()=>{
     console.log(`Server listening on port ${app.get('port')}`);

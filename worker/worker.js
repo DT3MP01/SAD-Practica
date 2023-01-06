@@ -4,7 +4,7 @@ var shellExec = require("shell-exec")
 
 const kafka = new Kafka({
 	clientId:"consumer-1",
-	brokers:["kafka:9092"],
+	brokers:[process.env.KAFKAIPADDR],
 })
 const pettopic="petition-topic"
 const restopic="result-topic"

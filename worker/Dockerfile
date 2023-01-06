@@ -13,7 +13,6 @@ RUN apk add --no-cache curl
 RUN apk add --no-cache git
 RUN npm install kafkajs
 RUN npm install shell-exec
-RUN npm install
 
 
 

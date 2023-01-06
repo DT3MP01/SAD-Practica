@@ -1,12 +1,12 @@
 version: "3"
 networks:
-  kafka:
+  app-tier:
     driver: bridge
 services:
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     networks:
-      - kafka
+      - app-tier
     ports:
       - '2181:2181'
     environment:
@@ -14,7 +14,7 @@ services:
   kafka:
     image: 'bitnami/kafka:latest'
     networks:
-      - kafka
+      - app-tier
     ports:
       - '9092:9092'
     environment:
@@ -31,17 +31,27 @@ services:
   worker:
     build: ./worker
     networks:
-      - kafka
+      - app-tier
+    environment:
+      - KAFKAIPADDR=kafka:9092
   api:
     build: ./API-Rest
     ports:
       - '3000:3000'
     networks:
-      - kafka
+      - app-tier
+    depends_on:
+      - keycloak
+    environment:
+      - KEYCLOAKIPADDR=keycloak:8080
+      - KAFKAIPADDR=kafka:9092
+      - KEYCLOAKREALM=kafka-realm
+      - KEYCLOACKPUBLICKEY='MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx0O6h6e+jApu9bmENK/llAAQxw7khNuGBL3VwYGa1NVE6VMxGT8o7k0e1RmUqddVw26G+/jsDSt0+4D6bSIPQ/QM+huolmaEE9P/J8aMziu7Hu+tpDp38qoghch3zxGkX+ma827BagC9/Wk2IPqRpBP27VmmeuMOSSEnqrAwc9YdAchwS7pYIT+H9zJUCXTR0C/Jpkm13k050Z7bJlO3VuykJvEtUoEVU29NNpo4bKPntWcwuBJ4dlnKo1TpzWUbVxjm0DXnNSwZGknEX38Z5+3Tm5aSWEWnfxDLlOQhHSScLVML9oFoYKmS1wp6yZ82rkcvIUK/9b3fjk8ziLeD9wIDAQAB'
   postgresql:
     image: docker.io/bitnami/postgresql:latest
+    container_name: sad-postgresql
     networks:
-      - kafka
+      - app-tier
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - POSTGRESQL_USERNAME=bn_keycloak
@@ -50,8 +60,9 @@ services:
       - 'postgresql_data:/bitnami/postgresql'
   keycloak:
     image: docker.io/bitnami/keycloak:latest
+    hostname: keycloak
     networks:
-      - kafka
+      - app-tier
     ports:
       - "80:8080"
     environment:
