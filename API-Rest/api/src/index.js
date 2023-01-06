@@ -6,7 +6,7 @@ const { randomUUID } = require('crypto');
 
 const kafka = new Kafka({
   clientId: 'my-app',
-  brokers: ['localhost:9093']
+  brokers: ['kafka:9092']
 })
 const restopic="result-topic"
 const pettopic = "petition-topic"

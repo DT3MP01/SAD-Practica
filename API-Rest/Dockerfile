@@ -1,6 +1,9 @@
 # our base image
 FROM alpine
 
+WORKDIR /api/
+ADD api /api/
+
 # Install python and pip
 RUN apk add --update npm
 RUN npm install kafkajs
@@ -9,13 +12,9 @@ RUN npm install crypto
 RUN npm install morgan
 RUN npm install
 
-
-# copy files required for the app to run
-COPY app.py /usr/src/app/
-COPY templates/index.html /usr/src/app/templates/
-
 # tell the port number the container should expose
-EXPOSE 5000
+# ENV PORT=4000
+#EXPOSE 3000
 
 # run the application
-CMD ["python3", "/usr/src/app/app.py"]
+CMD ["node", "/api/src/index.js"]

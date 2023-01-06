@@ -35,6 +35,7 @@ var sendOutput = async (uuid) => {
 	await producer.connect()
 		try {
 			var text = fs.readFileSync("./"+petition.output).toString('utf-8');
+			console.log(text.toString)
 			// send a message to the configured topic with
 			// the key and value formed from the current value of `i`
 			await producer.send({
@@ -64,22 +65,24 @@ const consumer = kafka.consumer({
 	maxWaitTimeInMs: 3000,
 })
 
-function clearEnviroment(){
-    shellExec.default("cp ./dir"+petition.path+"/"+petition.output+" .")
-    //shellExec.default("rm -rf dir")
+ async function clearEnviroment(){
+    //await shellExec.default("rm -rf dir")
+	console.log("LIMPIANDO ENVIROMENT")
 }
-function codeExecution(){
-    if(petition.file.toString().includes(".js")){
-        shellExec.default("cd dir && npm install")
-		shellExec.default("touch ./dir"+petition.path+"/"+petition.output)
-        shellExec.default("node ./dir"+petition.path+"/"+petition.file+" "+petition.arguments).then(clearEnviroment).catch(console.log)
+
+async function publicRepo() {
+	console.log("Descargando")
+	await shellExec.default('curl -fsS '+petition.url)
+    await shellExec.default('git clone '+petition.url+ ' dir')
+	if(petition.file.toString().includes(".js")){
+        await shellExec.default("cd dir && npm install")
+        await shellExec.default("node ./dir"+petition.path+"/"+petition.file+" "+petition.arguments).then(clearEnviroment).catch(console.log)
     }
     else if(petition.file.toString().includes(".py")){
-        shellExec.default('cd dir && python3 .'+petition.path+"/"+petition.file+" "+petition.arguments).then(console.log).catch(console.log)
+        await shellExec.default('cd dir && python3 .'+petition.path+"/"+petition.file+" "+petition.arguments).then(console.log).catch(console.log)
     }
-}
-function publicRepo() {
-    shellExec.default('git clone '+petition.url+ ' dir').then(codeExecution).catch(console.log)
+	
+	console.log("public")
   }
   
 
@@ -89,7 +92,7 @@ const consume = async () => {
 	await consumer.subscribe({ topic:pettopic, fromBeginning: true })
 	await consumer.run({
 		// this function is called every time the consumer gets a new message
-		eachMessage: ({ message }) => {
+		eachMessage: async ({ message }) => {
 			console.log(message.offset)
 
 			petition= JSON.parse(message.value.toString())
@@ -101,12 +104,7 @@ const consume = async () => {
 				}
 			}
 			// // here, we just log the message to the standard output
-			shellExec.default('curl -fsS '+petition.url).then(publicRepo).catch(console.log)
-			sendOutput(message.key)
-			console.log("YAY")
-			
-
-
+			await publicRepo().then(sendMessage(message.key,"TODO HA IDO BIEN"))
 		},
 	})
 }
