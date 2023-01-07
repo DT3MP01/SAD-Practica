@@ -32,6 +32,8 @@ services:
     build: ./worker
     networks:
       - app-tier
+    depends_on:
+      - keycloak
     environment:
       - KAFKAIPADDR=kafka:9092
   api:
@@ -45,8 +47,9 @@ services:
     environment:
       - KEYCLOAKIPADDR=keycloak:8080
       - KAFKAIPADDR=kafka:9092
-      - KEYCLOAKREALM=kafka-realm
-      - KEYCLOACKPUBLICKEY='MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx0O6h6e+jApu9bmENK/llAAQxw7khNuGBL3VwYGa1NVE6VMxGT8o7k0e1RmUqddVw26G+/jsDSt0+4D6bSIPQ/QM+huolmaEE9P/J8aMziu7Hu+tpDp38qoghch3zxGkX+ma827BagC9/Wk2IPqRpBP27VmmeuMOSSEnqrAwc9YdAchwS7pYIT+H9zJUCXTR0C/Jpkm13k050Z7bJlO3VuykJvEtUoEVU29NNpo4bKPntWcwuBJ4dlnKo1TpzWUbVxjm0DXnNSwZGknEX38Z5+3Tm5aSWEWnfxDLlOQhHSScLVML9oFoYKmS1wp6yZ82rkcvIUK/9b3fjk8ziLeD9wIDAQAB'
+      - KEYCLOAKCLIENT=api-client
+      - KEYCLOAKREALM=api-realm
+      - KEYCLOACKPUBLICKEY=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqvPRn8irFTlGw0qAQ5d3GUAGw641h2j3Keowk+eKTvO/sUIE5Mt1UJzFlfWYoNukQxlMPCADqfYBbHXsE7Gru0bYaSN+Oj52TFkZvlIpxbrg/kemEwt6th3PHTyWdz6CYo9slZCmQSGbTojkeLaKbeifpVJa6erSn6ea2l56V6rVg4lkKQrbiWQqM2IRdSwmHd3USniNMtRkd9fIZ6yS38Hjk5zu/3JsKSIQAOV+lwvbiU0fT5ErEpqwpm7l3qzsVoCUE3J7/Arj17DPOeYxiDhNYBkk1+v6BiYzmLi+0UNKMfXf/ctkyD4iJNoEML75VEJr96dsUZX2JYl9iTGZ2QIDAQAB
   postgresql:
     image: docker.io/bitnami/postgresql:latest
     container_name: sad-postgresql
@@ -64,7 +67,7 @@ services:
     networks:
       - app-tier
     ports:
-      - "80:8080"
+      - "8082:8080"
     environment:
       - KEYCLOAK_CREATE_ADMIN_USER=true
     depends_on:
