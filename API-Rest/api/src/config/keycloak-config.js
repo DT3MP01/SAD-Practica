@@ -3,7 +3,7 @@ var Keycloak = require('keycloak-connect')
 let _keycloak
 
 var keycloakConfig = {
-    clientId: 'api-rest',
+    clientId: process.env.KEYCLOAKCLIENT,
     bearerOnly: true,
     serverUrl: 'http://'+process.env.KEYCLOAKIPADDR+'/',
     realm: process.env.KEYCLOAKREALM,

@@ -1,6 +1,6 @@
 const express = require('express');
 
-//const keycloak = require('./config/keycloak-config.js').initKeycloak()
+const keycloak = require('./config/keycloak-config.js').initKeycloak()
 const app = express();
 const morgan=require('morgan');
 const { Kafka } = require('kafkajs')
@@ -47,7 +47,7 @@ app.set('port', process.env.PORT || 3000);
 app.set('json spaces', 2)
  
 //Middleware
-//app.use(keycloak.middleware())
+app.use(keycloak.middleware())
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
@@ -61,7 +61,7 @@ app.get('/', (req, res) => {
     );
 })
 
-app.get('/result/', (req, res) => { 
+app.get('/result/',keycloak.protect('user'), (req, res) => { 
 	if(petitionDict.hasOwnProperty(req.query.uuid) && petitionDict[req.query.uuid]== req.query.password){
 		fs.access('./result/'+req.query.uuid, (error) => {
 			//  if any error
@@ -87,7 +87,7 @@ app.get('/result/', (req, res) => {
 })
 
  
-app.post('/', function(request, response){
+app.post('/', keycloak.protect('user'),function(request, response){
 	var json= request.body;      // your JSON
 	for (const property in fields) {
 		if(!(Object.keys(json).includes(fields[property]))){
