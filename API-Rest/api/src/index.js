@@ -1,9 +1,13 @@
 const express = require('express');
+
 //const keycloak = require('./config/keycloak-config.js').initKeycloak()
 const app = express();
 const morgan=require('morgan');
 const { Kafka } = require('kafkajs')
 const { randomUUID } = require('crypto');
+// require filesystem module
+const fs = require("fs");
+const petitionDict = {}
 
 const kafka = new Kafka({
   clientId: 'my-app',
@@ -12,7 +16,7 @@ const kafka = new Kafka({
 const restopic="result-topic"
 const pettopic = "petition-topic"
 const producer = kafka.producer() 
-
+const fields=["url","path","file","arguments","output","password"]
 const consumer = kafka.consumer({
 	groupId: "app-rest",
 	minBytes: 5,
@@ -28,7 +32,13 @@ const consume = async () => {
 	await consumer.run({
 		// this function is called every time the consumer gets a new message
 		eachMessage: ({ message }) => {
-			console.log(`Result message: ${message.value}`)
+			console.log(`Result message: ${message.value} y ${message.key}`)
+			fs.writeFile("./result/"+message.key, message.value, function(err) {
+				if(err) {
+					return console.log(err);
+				}
+				console.log("The file was saved!");
+			}); 			
 		},
 	})
 }
@@ -51,19 +61,45 @@ app.get('/', (req, res) => {
     );
 })
 
-app.get('/result/', (req, res) => {    
-    res.json(
-        {
-            "Title": "Hola mundo"
-        }
-    );
+app.get('/result/', (req, res) => { 
+	if(petitionDict.hasOwnProperty(req.query.uuid) && petitionDict[req.query.uuid]== req.query.password){
+		fs.access('./result/'+req.query.uuid, (error) => {
+			//  if any error
+			if (error) {
+			console.log(error);
+			res.json(
+				{
+					"ERROR": "LA PETICIÓN SE SIGUE PROCESANDO"
+				}
+			);
+			return;
+			}
+			//enviar la petición
+			fs.createReadStream('./result/'+req.query.uuid).pipe(res);
+			console.log("File Exists!");
+		}); 
+	}
+	else{
+		res.json({"ERROR": " ACCESO A LA PETICIÓN DENEGADO"})
+	}
+
+  
 })
 
-
+ 
 app.post('/', function(request, response){
 	var json= request.body;      // your JSON
-	sendMessage(JSON.stringify(json));
-	response.send("OK  " +json.url);    // echo the result back
+	for (const property in fields) {
+		if(!(Object.keys(json).includes(fields[property]))){
+			response.send("ERROR en el formato de la petición: No se ha encontrado el campo "+fields[property]); 
+			return
+		}
+	}
+	id = randomUUID()
+	petitionDict[id] = json.password;
+	// delete json.password;
+	sendMessage(JSON.stringify(json),id);
+	response.send("Se ha procesado la petición con id:" +id); 
   });
   
 //Iniciando el servidor
@@ -73,8 +109,7 @@ app.listen(app.get('port'),()=>{
 });
 
 
-var sendMessage = async (url) => {
-	id = randomUUID()
+var sendMessage = async (url,id) => {
 	console.log(id)
 	await producer.connect()
 		try {

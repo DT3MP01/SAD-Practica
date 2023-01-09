@@ -10,7 +10,7 @@ const pettopic="petition-topic"
 const restopic="result-topic"
 const producer = kafka.producer() 
 var petition
-const fields=["url","path","file","arguments","output"]
+
 var sendMessage = async (uuid,text) => {
 	await producer.connect()
 		try {
@@ -34,8 +34,7 @@ var sendMessage = async (uuid,text) => {
 var sendOutput = async (uuid) => {
 	await producer.connect()
 		try {
-			var text = fs.readFileSync("./"+petition.output).toString('utf-8');
-			console.log(text.toString)
+			var text = fs.readFileSync(petition.output,"utf8");
 			// send a message to the configured topic with
 			// the key and value formed from the current value of `i`
 			await producer.send({
@@ -43,7 +42,7 @@ var sendOutput = async (uuid) => {
 				messages: [
 					{
 						key: uuid,
-						value: text,
+						value: 'Result :'+text,
 					},
 				],
 			})
@@ -76,7 +75,8 @@ async function publicRepo() {
     await shellExec.default('git clone '+petition.url+ ' dir')
 	if(petition.file.toString().includes(".js")){
         await shellExec.default("cd dir && npm install")
-        await shellExec.default("node ./dir"+petition.path+"/"+petition.file+" "+petition.arguments).then(clearEnviroment).catch(console.log)
+        await shellExec.default("node ./dir"+petition.path+"/"+petition.file+" "+petition.arguments)
+		console.log("LIMPIANDO ENVIROMENT")
     }
     else if(petition.file.toString().includes(".py")){
         await shellExec.default('cd dir && python3 .'+petition.path+"/"+petition.file+" "+petition.arguments).then(console.log).catch(console.log)
@@ -94,17 +94,10 @@ const consume = async () => {
 		// this function is called every time the consumer gets a new message
 		eachMessage: async ({ message }) => {
 			console.log(message.offset)
-
 			petition= JSON.parse(message.value.toString())
-			for (const property in fields) {
-				if(!(property in Object.keys(petition))){
-					sendMessage(message.key,"Error: Formato json incorrecto")
-					console.log("Error en la petición")
-					return
-				}
-			}
 			// // here, we just log the message to the standard output
-			await publicRepo().then(sendMessage(message.key,"TODO HA IDO BIEN"))
+			await publicRepo()
+			await sendOutput(message.key)
 		},
 	})
 }
