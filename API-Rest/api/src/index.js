@@ -61,6 +61,8 @@ app.get('/', (req, res) => {
     );
 })
 
+
+
 app.get('/result/',keycloak.protect('user'), (req, res) => { 
 	if(petitionDict.hasOwnProperty(req.query.uuid) && petitionDict[req.query.uuid]== req.query.password){
 		fs.access('./result/'+req.query.uuid, (error) => {
