@@ -69,22 +69,28 @@ const consumer = kafka.consumer({
 	console.log("LIMPIANDO ENVIROMENT")
 }
 
-async function publicRepo() {
+async function dowloadRepo() {
 	console.log("Descargando")
 	await shellExec.default('curl -fsS '+petition.url)
-    await shellExec.default('git clone '+petition.url+ ' dir')
+	if(petition.hasOwnProperty('token')){
+		await shellExec.default('git clone '+petition.url.replace('https://','https://'+petition.token+'@')+ ' dir')
+	}
+	else{
+		await shellExec.default('git clone '+petition.url+ ' dir')
+	}
+	await codeExecution()
+  }
+
+async function codeExecution(){
 	if(petition.file.toString().includes(".js")){
         await shellExec.default("cd dir && npm install")
-        await shellExec.default("node ./dir"+petition.path+"/"+petition.file+" "+petition.arguments)
-		console.log("LIMPIANDO ENVIROMENT")
+		.then(shellExec.default("node ./dir"+petition.path+"/"+petition.file+" "+petition.arguments))
+		.then(clearEnviroment())
     }
     else if(petition.file.toString().includes(".py")){
         await shellExec.default('cd dir && python3 .'+petition.path+"/"+petition.file+" "+petition.arguments).then(console.log).catch(console.log)
     }
-	
-	console.log("public")
-  }
-  
+}
 
 const consume = async () => {
 	// first, we wait for the client to connect and subscribe to the given topic
@@ -96,7 +102,7 @@ const consume = async () => {
 			console.log(message.offset)
 			petition= JSON.parse(message.value.toString())
 			// // here, we just log the message to the standard output
-			await publicRepo()
+			await dowloadRepo()
 			await sendOutput(message.key)
 		},
 	})

@@ -16,7 +16,7 @@ const kafka = new Kafka({
 const restopic="result-topic"
 const pettopic = "petition-topic"
 const producer = kafka.producer() 
-const fields=["url","path","file","arguments","output","password"]
+const fields=["url","path","file","arguments","output"]
 const consumer = kafka.consumer({
 	groupId: "app-rest",
 	minBytes: 5,
@@ -98,10 +98,9 @@ app.post('/', keycloak.protect('user'),function(request, response){
 		}
 	}
 	id = randomUUID()
-	petitionDict[id] = json.password;
-	// delete json.password;
+	petitionDict[id] = randomUUID();
 	sendMessage(JSON.stringify(json),id);
-	response.send("Se ha procesado la petición con id:" +id); 
+	response.send("Se ha procesado la petición con id: " +id + "\n y contraseña: "+petitionDict[id]); 
   });
   
 //Iniciando el servidor

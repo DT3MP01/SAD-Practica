@@ -1,0 +1,4 @@
+manifests/cue.mod/pkg/
+.tmp
+notes.txt
+node_modules

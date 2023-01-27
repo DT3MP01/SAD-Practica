@@ -1,0 +1,310 @@
+= Node-Calc
+Kumori Systems v1.0.0, Mar 2022
+:compat-mode:
+:toc:
+:icons: font
+:toc-title: Index
+:toclevels: 3
+:doctype: article
+:experimental:
+:icons: font
+:sectanchors:
+:sectlinks:
+:sectnums:
+:imagesdir: ./images
+
+This example shows how to build and deploy a Kumori Service Application composed
+of two components.
+
+The repository contains both the manifests needed to deploy the 'node-calc' Service
+Application within a Kumori Platorm, and the source code (Node.js) used to build
+the docker images of the two components.
+
+Node-Calc Service Application exposes a REST API with a function to evaluate
+mathematical expressions.
+
+== Frontend component
+
+File `manifests/components/frontend/manifest.cue` is the manifest that describes
+the Frontend Component used in the Node-Calc Service Application.
+
+Frontend doesn't evaluate the mathematical expression, but delegates the work by
+resending the received expression to the destination indicated by the "endpoint"
+of its configuration.
+
+This component uses two channels:
+
+* a server channel, called `serviceconnector`, on TCP port 8080, through which the requests
+with the expressions to be evaluated are received.
+* a client channel, called `evalclient`, that is its dependency to evaluate
+expressions.
+
+image:frontend.png[frontend]
+
+This component expects this configuration:
+[source,cue]
+----
+appconfig: {
+  endpoint: "http://0.evalclient/calc" <1>
+}
+----
+<1> endpoint allowing communication with the other component, to wich delegates
+the evaluation of the mathematical expression. In this case, configuration is
+closed with concrete values in the component manifests, not in the deployment
+manifest.
+
+The content of the `appconfig` key is mapped into a JSON file in the filesystem
+of the underlying container:
+[source,cue]
+----
+filesystem: {
+  "/config/config.json": { <1>
+    data: value: config.parameter.appconfig <2>
+    format: "json" <3>
+  }
+}
+----
+<1> Path within the container
+<2> Data to be mapped (from the config section)
+<3> Type of data (json, yaml, text)
+
+Two environment variables are mapped into the container too, to be used by the
+underlying container:
+[source,cue]
+----
+env: {
+  CONFIG_FILE: value: "/config/config.json" <1>
+  HTTP_SERVER_PORT_ENV: value: "\(srv.server.restapi.port)" <2>
+}
+----
+<1> Location of the configuration to be used
+<2> TCP port on wich the web server must listen
+
+=== Docker image
+
+Frontend is a component executing a container based on the docker image available
+in `docker.io/kumoripublic/examples-node-calc-frontend:v1.0.7`. +
+The source code is available under the `code/frontend` directory of this repository.
+
+It's a Node.js web server application that:
+
+* HTTP web server listens on the port indicated in the `HTTP_SERVER_PORT_ENV`
+environment variable
+
+* Expects a JSON configuration file in the path indicated by the environment
+variable `CONFIG_FILE`. +
+
+* The HTTP web server implements a REST API with two functions:
+
+** POST /calc : receives a JSON payload with a mathematical expression to be
+evaluated. +
+
+** GET /health : always responds OK
+
+== Worker Component
+
+File `manifests/components/worker/manifest.cue` is the manifest that describes
+the Worker Component used in the Node-Calc Service Application.
+
+Wroker is in charge of evaluate mathematical expressions.
+
+This component uses one channel:
+
+* a server channel, called `evalserver`, on TCP port 8080, through which the requests
+with the expressions to be evaluated are received.
+
+image:worker.png[worker]
+
+This component expects this configuration:
+[source,cue]
+----
+appconfig: {
+  language: string | *"en" <1>
+}
+----
+<1> language ("en" / "es") to be used in the response. The default value is "en".
+    In this case, configuration is not closed with concrete values (except the
+    default value) in the component manifests, so specific values may be provided
+    in the deployment manifest
+
+The content of the `appconfig` key is mapped into a JSON file in the filesystem
+of the underlying container:
+[source,cue]
+----
+filesystem: {
+  "/config/config.json": { <1>
+    data: value: config.parameter.appconfig <2>
+    format: "json" <3>
+  }
+}
+----
+<1> Path within the container
+<2> Data to be mapped (from the config section)
+<3> Type of data (json, yaml, text)
+
+Two environment variables are mapped into the container too, to be used by the
+underlying container:
+[source,cue]
+----
+env: {
+  CONFIG_FILE: value: "/config/config.json" <1>
+  HTTP_SERVER_PORT_ENV: value: "\(srv.server.evalserver.port)" <2>
+}
+----
+<1> Location of the configuration to be used
+<2> TCP port on wich the web server must listen
+
+=== Docker image
+
+Worker is a component using the docker image available in 
+`docker.io/kumoripublic/examples-node-calc-worker:v1.0.7`. +
+The source code is available under the `code/worker` directory of this repository.
+
+It's a Node.js web server application that:
+
+* HTTP web server listens on the port indicated in the `HTTP_SERVER_PORT_ENV`
+environment variable
+
+* Expects a JSON configuration file in the path indicated by the environment
+variable `CONFIG_FILE`. +
+
+* The HTTP web server implements a REST API with two functions:
+
+** POST /calc : receives a JSON payload with a mathematical expression to be
+evaluated, and evaluate it. +
+Evaluation is performed by the module https://github.com/bugwheels94/math-expression-evaluator. +
+Response is a JSON too, with the result of the evaluation or a description of
+the error if it occurs.
+
+** GET /health : always responds OK
+
+== Node-Calc Service Application
+
+File `manifests/service/manifest.cue` is the manifest that describes
+the Node-Calc Kumori Service Application, with two roles:
+
+* A Frontend role, based on the Frontend Component
+* A Worker role, based on the Worker Component
+
+The topology of this service is:
+
+* It exposes a service server channel, called `calc`, on TCP port 80. +
+* A load-balancer connector named `serviceconnector` links the `calc` service
+channel with the `restapi` channel of the Frontend role.
+* A load-balancer connector named `evalconnector` links the `evalclient`ry contains both the manifests needed to deploy the 'node-calc' Service
+Application within a Kumori Platorm, and the source code (Node.js) used to build
+the docker images of the two components.
+image:service.png[service]
+
+This service expects this configuration, that will be spreaded to the roles (in
+this case, only to one role):
+[source,cue]
+----
+{
+  language: string <2>
+}
+----
+<1> language to be used in the Worker role
+
+== Deploying the Node-Calc Service Application
+
+To deploy the service the `kumorictl register deployment` command must be used:
+
+[source]
+----
+kumorictl register deployment calcnodedep \ <1>
+  --deployment ./manifests/deployment \
+  --comment "Calculator service" \
+  --wait 5m <2>
+----
+<1> `calcnodedep` is the name assigned to the deployed service.
+<2> Command returns when all the instances are running and ready.
+
+To be accessible from the outside, it is necessary to create an `http-inbound`,
+and link it to its service channel:
+
+[source]
+----
+kumorictl register domain calcnodedomain calc-node-<cluster-name>.<cluster-reference-domain> <1>
+kumorictl register inbound calcnodeinb \ <2>
+  --domain calcnodedomain \ <3>
+  --cert cluster.core/wildcard.<cluster-reference-domain> <4>
+
+kumorictl link calcnodedep:calc calcnodeinb:inbound <5>
+----
+<1> Resource `domain` with the domain to be used to access the service. In this case, it is a domain under the
+platform reference domain and (not mandatory) the domain includes the cluster name.
+<2> `my.examples/calcnodeinb` is the name assigned to the `http-inbound`
+<3> The `http-inbound` uses the `domain` resource previously registerd..
+<4> Builtin TLS certificate related to the platform reference domain
+<5> Link the the `calc` service channel with the `http-inbound`
+
+image:deployment.png[deployment]
+
+The deployment manifest can be adjusted before deploy the service
+
+[source,cue]
+----
+config: {
+  parameter: { <1>
+    language: "en"
+  }
+  resource: {}
+  scale: detail: { <2>
+    frontend: hsize: 1
+    worker: hsize: 2
+  }
+  resilience: 0
+}
+----
+<1> Values are assigned to the configuration parameters of the service.
+<2> Number of instances of each role.
+
+== Testing the service
+
+When an `http-inbound` is created, the platform registers its domain with the
+corresponding DNS service. This operation has a certain propagation time, so the
+domain may take some time to become available (this can be checked using the
+`nslookup` command).
+
+Once the domain is available, the service can be tested with:
+[source]
+----
+curl -sS -X POST  -d '{"expr": "sin(90)*5"}' -H "Content-Type: application/json" https://node-calc-<cluster-name>.<cluster-reference-domain>/calc  | jq .
+
+{
+  "success": true,
+  "message": "Expression evaluated correctly",
+  "value": 5
+}
+
+curl -sS -X POST  -d '{"expr": "wrong + expression"}' -H "Content-Type: application/json" https://node-calc-<cluster-name>.<cluster-reference-domain>/calc  | jq .
+
+{
+  "success": false,
+  "message": "Error evaluating expression: 'wrong + expression'",
+  "value": null
+}
+----
+
+NOTE: If the `http-inbound` domain is accessed before link the service with the
+`http-inbound`, a `temporarily out of service` message is returned. The life-cycle
+of an `http-inbound` is independent of the service to which it is linked: an
+`http-inbound` can be linked successively (not simultaneously) to different
+deployed services.
+
+== Undeploying the Node-Calc Service Application
+
+In addition to undeploy the Node-Calc Service Application, the http-inbound can
+be unlinked and undeployed too.
+
+[source]
+----
+kumorictl unlink calcnodedep:calc calcnodeinb:inbound
+kumorictl unregister deployment calcnodedep --wait 5m
+kumorictl unregister inbound calcnodeinb --wait 5m
+kumorictl unregister domain calcnodedomain
+----
+
+NOTE: An implicit `unlink` operation is performed if the service is undeployed
+with the `--force` flag: `kumorictl unlink calcnodedep:calc calcnodeinb --force --wait 5m`

@@ -1,0 +1,16 @@
+{
+  "name": "frontend",
+  "version": "0.0.1",
+  "description": "CalcNode frontend",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kumori Systems",
+  "license": "ISC",
+  "dependencies": {
+    "express": "4.17.1",
+    "body-parser": "1.19.0",
+    "axios": "0.21.1"
+  }
+}
