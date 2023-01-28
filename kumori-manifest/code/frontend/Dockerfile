@@ -1,40 +1,14 @@
-################################################################
-#                                                              #
-#  * Copyright 2020 Kumori Systems S.L.                        #
-#                                                              #
-#  * Licensed under the EUPL, Version 1.2 or – as soon they    #
-#    will be approved by the European Commission - subsequent  #
-#    versions of the EUPL (the "Licence");                     #
-#                                                              #
-#  * You may not use this work except in compliance with the   #
-#    Licence.                                                  #
-#                                                              #
-#  * You may obtain a copy of the Licence at:                  #
-#                                                              #
-#    https://joinup.ec.europa.eu/software/page/eupl            #
-#                                                              #
-#  * Unless required by applicable law or agreed to in         #
-#    writing, software distributed under the Licence is        #
-#    distributed on an "AS IS" basis,                          #
-#                                                              #
-#  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either      #
-#    express or implied.                                       #
-#                                                              #
-#  * See the Licence for the specific language governing       #
-#    permissions and limitations under the Licence.            #
-#                                                              #
-################################################################
+# our base image
+FROM alpine
 
-FROM node:14.17.4
+WORKDIR /api/
+ADD api /api/
 
-# Create app directory
-WORKDIR /usr/src/app
-
-# Install app dependencies
-COPY package*.json ./
+# Install python and pip
+RUN apk add --update npm
 RUN npm install
 
-# Bundle app source
-COPY . .
+# run the application
+CMD ["node", "/api/src/index.js"]
 
-CMD [ "node", "server.js" ]
+

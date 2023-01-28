@@ -7,10 +7,10 @@ CLUSTERCERT="cluster.core/wildcard-vera-kumori-cloud"
 KUMORICTL_CMD="kam ctl"
 KAM_CMD="kam"
 # Service variables
-INBOUNDNAME="calcnodeinb"
-DEPLOYNAME="calcnodedep"
-DOMAIN="calcnodedomain"
-SERVICEURL="calc-node-${CLUSTERNAME}.${REFERENCEDOMAIN}"
+INBOUNDNAME="sadnodeinb"
+DEPLOYNAME="sadnodedep"
+DOMAIN="sadnodedomain"
+SERVICEURL="sad-node-${CLUSTERNAME}.${REFERENCEDOMAIN}"
 
 case $1 in
 
@@ -35,7 +35,7 @@ case $1 in
 'deploy-service')
   ${KUMORICTL_CMD} register deployment $DEPLOYNAME \
     --deployment ./manifests/deployment \
-    --comment "Calc service" \
+    --comment "Sad service deploy" \
     --wait 5m
   ;;
 
@@ -49,12 +49,12 @@ case $1 in
 'update-service')
   ${KUMORICTL_CMD} update deployment $DEPLOYNAME \
     --deployment ./manifests/deployment \
-    --comment "Updating calc service" \
+    --comment "Updating Sad service" \
     --wait 5m
   ;;
 
 'link')
-  ${KUMORICTL_CMD} link $DEPLOYNAME:calc $INBOUNDNAME:inbound
+  ${KUMORICTL_CMD} link $DEPLOYNAME:sad $INBOUNDNAME:inbound
   ;;
 
 'describe')
@@ -65,7 +65,7 @@ case $1 in
   ;;
 
 'unlink')
-  ${KUMORICTL_CMD} unlink $DEPLOYNAME:calc $INBOUNDNAME:inbound
+  ${KUMORICTL_CMD} unlink $DEPLOYNAME:sad $INBOUNDNAME:inbound
   ;;
 
 'undeploy-service')
@@ -82,7 +82,7 @@ case $1 in
 
 # Undeploy all (secrets, inbounds, deployments)
 'undeploy-all')
-  ${KUMORICTL_CMD} unlink $DEPLOYNAME:calc $INBOUNDNAME:inbound
+  ${KUMORICTL_CMD} unlink $DEPLOYNAME:sad $INBOUNDNAME:inbound
   ${KUMORICTL_CMD} unregister deployment $DEPLOYNAME --wait 5m
   ${KUMORICTL_CMD} unregister deployment $INBOUNDNAME --wait 5m
   ${KUMORICTL_CMD} unregister domain $DOMAIN
