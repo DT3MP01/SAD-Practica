@@ -88,7 +88,18 @@ app.get('/result/',keycloak.protect('user'), (req, res) => {
   
 })
 
- 
+function deleteWork(id){
+	console.log("FILE REMOVED "+id)
+	delete petitionDict[id];
+	fs.unlink('./result/'+id, (error) => {
+		//  if any error
+		if (error) {
+		console.log(error);
+		return;
+		}
+	});	
+}
+
 app.post('/', keycloak.protect('user'),function(request, response){
 	var json= request.body;      // your JSON
 	for (const property in fields) {
@@ -101,6 +112,8 @@ app.post('/', keycloak.protect('user'),function(request, response){
 	petitionDict[id] = randomUUID();
 	sendMessage(JSON.stringify(json),id);
 	response.send("Se ha procesado la petición con id: " +id + "\n y contraseña: "+petitionDict[id]); 
+	setTimeout(deleteWork, 30*60*1000, id)
+
   });
   
 //Iniciando el servidor
