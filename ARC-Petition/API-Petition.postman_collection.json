@@ -1,0 +1,98 @@
+{
+	"info": {
+		"_postman_id": "35b246e2-1bf9-4a4e-b58d-ab156fc34397",
+		"name": "API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24571001"
+	},
+	"item": [
+		{
+			"name": "Petition",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"url\": \"https://github.com/DT3MP01/SAD-Practica\",\r\n \"path\":\"/Tests\",\r\n \"file\":\"test1.js\",\r\n \"arguments\":\"15 output\",\r\n \"output\":\"output\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/result?uuid=&password=",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"result"
+					],
+					"query": [
+						{
+							"key": "uuid",
+							"value": ""
+						},
+						{
+							"key": "password",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
