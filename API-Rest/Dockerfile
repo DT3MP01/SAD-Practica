@@ -2,7 +2,7 @@
 FROM alpine
 
 WORKDIR /api/
-ADD api /api/
+COPY . /
 
 # Install python and pip
 RUN apk add --update npm
