@@ -45,6 +45,7 @@ services:
     depends_on:
       - keycloak
     environment:
+      - SESSION=kafkasesion
       - KEYCLOAKIPADDR=localhost:8082
       - KAFKAIPADDR=kafka:9092
       - KEYCLOAKCLIENT=api-client

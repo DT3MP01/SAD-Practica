@@ -1,5 +1,5 @@
 const express = require('express');
-
+const session = require('express-session');
 const keycloak = require('./config/keycloak-config.js').initKeycloak()
 const app = express();
 const morgan=require('morgan');
@@ -24,7 +24,6 @@ const consumer = kafka.consumer({
 	// wait for at most 3 seconds before receiving new data
 	maxWaitTimeInMs: 3000,
 })
-
 const consume = async () => {
 	// first, we wait for the client to connect and subscribe to the given topic
 	await consumer.connect()
@@ -47,6 +46,12 @@ app.set('port', process.env.PORT || 3000);
 app.set('json spaces', 2)
  
 //Middleware
+app.use(session({
+	secret: process.env.SESSION,
+	resave: false,
+	saveUninitialized: true,
+	store: keycloak.store
+  }));
 app.use(keycloak.middleware())
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended:false}));
