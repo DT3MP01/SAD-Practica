@@ -56,17 +56,18 @@ app.use(express.json());
 app.get('/', (req, res) => {    
     res.json(
         {
-            "Title": "Hola mundo"
+            "Title": "API REST DE PETICIONES"
         }
     );
 })
 
-
-
+/**
+ * Ruta que permite comprobar el estado de una petición
+ */
 app.get('/result/',keycloak.protect('user'), (req, res) => { 
-	if(petitionDict.hasOwnProperty(req.query.uuid) && petitionDict[req.query.uuid]== req.query.password){
-		fs.access('./result/'+req.query.uuid, (error) => {
-			//  if any error
+	if(petitionDict.hasOwnProperty(req.query.id)){
+		fs.access('./result/'+req.query.id, (error) => {
+			//  Si no se encuentra el archivo , la petición se sigue procesando
 			if (error) {
 			console.log(error);
 			res.json(
@@ -76,23 +77,24 @@ app.get('/result/',keycloak.protect('user'), (req, res) => {
 			);
 			return;
 			}
-			//enviar la petición
-			fs.createReadStream('./result/'+req.query.uuid).pipe(res);
-			console.log("File Exists!");
+			//enviar el resultado de la petición
+			fs.createReadStream('./result/'+req.query.id).pipe(res);
+			setTimeout(deletePetition, 30*60*1000, req.query.id)
 		}); 
 	}
 	else{
-		res.json({"ERROR": " ACCESO A LA PETICIÓN DENEGADO"})
-	}
-
-  
+		res.json({"ERROR": "NO HAY PETICIÓN CON ESE ID"})
+	}  
 })
 
-function deleteWork(id){
+/**
+ * Elimina la petición debido a que se ha agotado el tiempo de espera.
+ * @param {number} id El identificador de la petición a eliminar.
+ */
+function deletePetition(id){
 	console.log("FILE REMOVED "+id)
 	delete petitionDict[id];
 	fs.unlink('./result/'+id, (error) => {
-		//  if any error
 		if (error) {
 		console.log(error);
 		return;
@@ -100,19 +102,23 @@ function deleteWork(id){
 	});	
 }
 
+/**
+ * Enviar el error que ha detenido la ejecución de la petición.
+ */
 app.post('/', keycloak.protect('user'),function(request, response){
 	var json= request.body;      // your JSON
 	for (const property in fields) {
+		//Se comprueba el formato de la petición
 		if(!(Object.keys(json).includes(fields[property]))){
 			response.send("ERROR en el formato de la petición: No se ha encontrado el campo "+fields[property]); 
 			return
 		}
 	}
+	//Se asigna un identificador aleatorio a la petición, este será el id de consulta y se devuelve al usuario
 	id = randomUUID()
-	petitionDict[id] = randomUUID();
+	petitionDict[id] = true;
 	sendMessage(JSON.stringify(json),id);
-	response.send("Se ha procesado la petición con id: " +id + "\n y contraseña: "+petitionDict[id]); 
-	setTimeout(deleteWork, 30*60*1000, id)
+	response.send("Se ha añadido la petición a la cola con id: " +id); 
 
   });
   
@@ -122,8 +128,12 @@ app.listen(app.get('port'),()=>{
 	consume();
 });
 
-
-var sendMessage = async (url,id) => {
+/**
+ * Enviar el error que ha detenido la ejecución de la petición.
+ * @param {string} petition El json de la petición
+ * @param {number} id El identificador de la petición a responder.
+ */
+var sendMessage = async (petition,id) => {
 	console.log(id)
 	await producer.connect()
 		try {
@@ -134,7 +144,7 @@ var sendMessage = async (url,id) => {
 				messages: [
 					{
 						key: id,
-						value: url,
+						value: petition,
 					},
 				],
 			})
