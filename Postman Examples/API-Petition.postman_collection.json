@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "35b246e2-1bf9-4a4e-b58d-ab156fc34397",
+		"name": "API",
+		"description": "Peticiones a la API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24571001"
+	},
+	"item": [
+		{
+			"name": "Petición correcta",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"url\": \"https://github.com/DT3MP01/SadUseCases\",\r\n \"path\":\"/\",\r\n \"file\":\"fibonacci.js\",\r\n \"arguments\":\"15 output\",\r\n \"output\":\"output\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Repo privado o no existe",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"url\": \"https://github.com/noexiste/repositorio\",\r\n \"path\":\"/Tests\",\r\n \"file\":\"test1.js\",\r\n \"arguments\":\"15 output\",\r\n \"output\":\"output\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Falta algún parámetro",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"url\": \"https://github.com/DT3MP01/SAD-Practica\",\r\n \"path\":\"/Tests\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Error en la ejecución",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"url\": \"https://github.com/DT3MP01/SadUseCases\",\r\n \"path\":\"/\",\r\n \"file\":\"fibonacci.js\",\r\n \"arguments\":\"noesunmumero output\",\r\n \"output\":\"output\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Repositorio privado",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"url\": \"\",\r\n \"path\":\"/\",\r\n \"file\":\"\",\r\n \"arguments\":\"\",\r\n \"output\":\"\",\r\n \"token\": \"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status and Result",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/result?id=22d67fcb-50ba-40e6-9fa2-4c4ae6ebeec5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"result"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "22d67fcb-50ba-40e6-9fa2-4c4ae6ebeec5"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHODBGa2RTTTNlOG1uUWlQUkN2TVM1OGs4VmJNb3pVS2hXbmZZQnhLZGRBIn0.eyJleHAiOjE2NzUwMTgzODcsImlhdCI6MTY3NTAxNjU4NywianRpIjoiNTNmOTY2MGQtNjE1Mi00NWQzLTg1OGEtZTFiMzFkMmE4NGIyIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgyL3JlYWxtcy9hcGktcmVhbG0iLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiZDExMTkyNTItN2E2ZC00YTBmLTkyZjEtNTk1ZTYzNjg1MGQ5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYXBpLWNsaWVudCIsInNlc3Npb25fc3RhdGUiOiI2MTEwMTQwNC0wMjAxLTQxYWYtYTYyOC1mYzYxNjVlYjU1YjAiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iLCJhcHAtdXNlciIsImRlZmF1bHQtcm9sZXMtYXBpLXJlYWxtIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYXBpLWNsaWVudCI6eyJyb2xlcyI6WyJ1c2VyIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJzaWQiOiI2MTEwMTQwNC0wMjAxLTQxYWYtYTYyOC1mYzYxNjVlYjU1YjAiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicHJlZmVycmVkX3VzZXJuYW1lIjoidXN1YXJpbyIsImdpdmVuX25hbWUiOiIiLCJmYW1pbHlfbmFtZSI6IiJ9.FN8KZvg3g0wPXx3p1zKE5UzyjySf4t6rVlogjiLRqdzeabzcYh1UQcl3NqgmjugIKM3lc2v-fDvWcneuty34IW4DGvIZMcpkQYo6UmuFfdIY6BY9t9CDv_MrxFFJ6k1d_kNNqOBKfiX9_nwMxifm8XmmKWGp1xNXjJ5SbZHYhOvepBWMZFbDx_dr1MFO0cCdiFEu0FRTIMYylG0JlaPMpXNkD5R9MBqIJRYZItls_GDZynY6_gbK-aJqVqdhhnSCz52BjEfnIJ0SGCjpDhWY41hIPN83ockt8rBotsEweyp_paDgsFPAIlC-bqEhtpXQtGe-scaWzdIkhgvf-QH46Q",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

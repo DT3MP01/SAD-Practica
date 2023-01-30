@@ -1,7 +1,7 @@
 package component
 
 #Artifact: {
-  ref: name:  "calcfrontend"
+  ref: name:  "sadapi"
 
   description: {
 

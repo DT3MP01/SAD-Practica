@@ -37,7 +37,7 @@ services:
     environment:
       - KAFKAIPADDR=kafka:9092
   api:
-    build: ./API-Rest
+    build: ./frontend
     ports:
       - '3000:3000'
     networks:
@@ -73,8 +73,6 @@ services:
       - KEYCLOAK_CREATE_ADMIN_USER=true
     depends_on:
       - postgresql
-    volumes:
-      - './mynewtheme:/opt/bitnami/keycloak/themes/mynewtheme'
 volumes:
   postgresql_data:
     driver: local
