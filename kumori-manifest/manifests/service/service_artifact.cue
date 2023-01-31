@@ -3,10 +3,12 @@ package service
 import (
   f ".../frontend:component"
   w ".../worker:component"
+  k ".../kafka:component"
+  z ".../zookeeper:component"
 )
 
 #Artifact: {
-  ref: name: "calculator"
+  ref: name: "sadservice"
 
   description: {
 
@@ -27,6 +29,8 @@ import (
     role: {
       frontend: artifact: f.#Artifact
       worker: artifact: w.#Artifact
+      kafka: artifact: k.#Artifact
+      zookeeper: artifact: z.#Artifact
     }
 
     // Configuration spread:
@@ -39,14 +43,21 @@ import (
           resource: {}
         }
       }
-
       worker: {
         config: {
-          parameter: {
-            appconfig: {
-              language: description.config.parameter.language
-            }
-          }
+          parameter: {}
+          resource: {}
+        }
+      }
+      kafka: {
+        config: {
+          parameter: {}
+          resource: {}
+        }
+      }
+      kafka: {
+        config: {
+          parameter: {}
           resource: {}
         }
       }
@@ -59,24 +70,36 @@ import (
     // Connectivity of a service application: the set of channels it exposes.
     srv: {
       server: {
-        calc: { protocol: "http", port: 80 }
+        calc: { protocol: "http", port: 3000 }
       }
     }
 
     // Connectors, providing specific patterns of communication among channels
     // and specifying the topology graph.
     connect: {
-      // Outside -> FrontEnd (LB connector)
+      // Outside -> frontend (LB connector)
       serviceconnector: {
         as: "lb"
   			from: self: "calc"
         to: frontend: "restapi": _
       }
-      // FrontEnd -> Worker (LB connector)
-      evalconnector: {
+      // frontend -> kafka (LB connector)
+      fkconnector: {
         as: "lb"
-        from: frontend: "evalclient"
-        to: worker: "evalserver": _
+        from: frontend: "kafkaclient"
+        to: kafka: "kafkaserver": _
+      }
+      // worker -> kafka (LB connector)
+      wkconnector: {
+        as: "lb"
+        from: worker: "kafkaclient"
+        to: kafka: "kafkaserver": _
+      }
+      // KAFKA -> zookeeper (LB connector)
+      kzconnector: {
+        as: "lb"
+        from: kafka: "zookeeperclient"
+        to: zookeeper: "zookeeperserver": _
       }
     }
 

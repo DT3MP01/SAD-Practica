@@ -7,7 +7,7 @@ package component
 
     srv: {
       server: {
-        evalserver: { protocol: "http", port: 8080 }
+        kafkaserver: { protocol: "http", port: 8080 }
       }
     }
 
@@ -26,19 +26,6 @@ package component
       bandwidth: { size: 10, unit: "M" }
     }
 
-    probe: worker: {
-      liveness: {
-        protocol: http : { port: srv.server.evalserver.port, path: "/health" }
-        startupGraceWindow: { unit: "ms", duration: 30000, probe: true }
-        frequency: "medium"
-        timeout: 30000  // msec
-      }
-      readiness: {
-        protocol: http : { port: srv.server.evalserver.port, path: "/health" }
-        frequency: "medium"
-        timeout: 30000 // msec
-      }
-    }
 
     code: {
 
@@ -47,7 +34,7 @@ package component
 
         image: {
           hub: { name: "", secret: "" }
-          tag: "kumoripublic/examples-node-calc-worker:v1.0.7"
+          tag: "dtempo/sad-practica-worker"
         }
 
         mapping: {
@@ -61,7 +48,7 @@ package component
           }
           env: {
             CONFIG_FILE: value: "/config/config.json"
-            HTTP_SERVER_PORT_ENV: value: "\(srv.server.evalserver.port)"
+            KAFKAIPADDR: "http://0.kafkaserver/"
           }
         }
 

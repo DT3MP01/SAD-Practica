@@ -1,23 +1,20 @@
 package component
 
 #Artifact: {
-  ref: name:  "sadapi"
+  ref: name:  "sadzookeeper"
 
   description: {
 
     srv: {
       server: {
-        restapi: { protocol: "http", port: 3000 }
-      }
-      client: {
-        kafkaclient: { protocol: "http", port:9092 }
+        zookeeperserver: { protocol: "http", port: 2181 }
       }
     }
 
     config: {
       parameter: {
         appconfig: {
-          endpoint: "http://0.restapi/"
+          endpoint: "http://0.zookeeperserver/"
         }
       }
       resource: {}
@@ -31,20 +28,19 @@ package component
 
     code: {
 
-      frontend: {
-        name: "frontend"
+      zookeeper: {
+        name: "zookeeper"
 
         image: {
-          hub: { name: "", secret: "" }
-          tag: "sad-practica-worker"
+          hub: { name: "bitnami/zookeeper:latest", secret: "" }
+          tag: "bitnami/zookeeper:latest"
         }
 
         mapping: {
           // Filesystem mapping: map the configuration into the JSON file
           // expected by the component
           env: {
-            SESSION: "kafkasesion"
-            KAFKAIPADDR: "0.kafkaclient"
+            ALLOW_ANONYMOUS_LOGIN: "yes"
           }
         }
 

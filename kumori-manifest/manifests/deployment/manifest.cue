@@ -14,8 +14,11 @@ import (
     }
     resource: {}
     scale: detail: {
+      zookeeper: hsize: 1
+      kafka: hsize: 1
       frontend: hsize: 1
       worker: hsize: 3
+
     }
     resilience: 0
   }
