@@ -7,10 +7,10 @@ package component
 
     srv: {
       server: {
-        kafkaserver: { protocol: "http", port: 8080 }
+        kafkaserver: { protocol: "http", port: 9092 }
       }
       client: {
-        zookeeperclient: { protocol: "http" }
+        zookeeperclient: { protocol: "http", port: 2181  }
       }
     }
 

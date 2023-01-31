@@ -7,7 +7,7 @@ package component
 
     srv: {
       server: {
-        kafkaserver: { protocol: "http", port: 8080 }
+        kafkaserver: { protocol: "http", port: 9092 }
       }
     }
 
